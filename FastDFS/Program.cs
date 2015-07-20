@@ -14,25 +14,29 @@ namespace FastDFS
         static void Main(string[] args)
         {
 
-
             //===========================Initial========================================
             List<IPEndPoint> trackerIPs = new List<IPEndPoint>();
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("192.168.81.233"),22122);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("10.0.21.101"), 22122);
             trackerIPs.Add(endPoint);
             ConnectionManager.Initialize(trackerIPs);
-            StorageNode node = FastDFSClient.GetStorageNode("group1");
+            StorageNode node = FastDFSClient.GetStorageNode();
             //===========================UploadFile=====================================
             byte[] content = null;
-            if (File.Exists(@"D:\材料科学与工程基础.doc"))
+            string filename = @"D:\软件开发\OS\FastDFS\file\4.jpg";
+            if (File.Exists(filename))
             {
-                FileStream streamUpload = new FileStream(@"D:\材料科学与工程基础.doc", FileMode.Open);
+                FileStream streamUpload = new FileStream(filename, FileMode.Open);
                 using (BinaryReader reader = new BinaryReader(streamUpload))
                 {
                     content = reader.ReadBytes((int)streamUpload.Length);
                 }
             }
             //string fileName = FastDFSClient.UploadAppenderFile(node, content, "mdb");
-            string fileName = FastDFSClient.UploadFile(node, content, "doc");
+            string fileName = FastDFSClient.UploadFile(node, content, "jpg");
+
+            FastDFSClient.DownloadFileEx(node, fileName, @"D:\软件开发\OS\FastDFS\file", "5.jpg");
+
+            Console.ReadKey();
 
             //===========================BatchUploadFile=====================================
             string[] _FileEntries = Directory.GetFiles(@"E:\fastimage\三维", "*.jpg");
@@ -55,7 +59,7 @@ namespace FastDFS
             //===========================QueryFile=======================================
             fileName = "M00/00/00/wKhR6U__-BnxYu0eAxRgAJZBq9Q180.mdb";
             FDFSFileInfo fileInfo = FastDFSClient.GetFileInfo(node, fileName);
-            Console.WriteLine(string.Format("FileName:{0}",fileName));
+            Console.WriteLine(string.Format("FileName:{0}", fileName));
             Console.WriteLine(string.Format("FileSize:{0}", fileInfo.FileSize));
             Console.WriteLine(string.Format("CreateTime:{0}", fileInfo.CreateTime));
             Console.WriteLine(string.Format("Crc32:{0}", fileInfo.Crc32));
@@ -65,11 +69,11 @@ namespace FastDFS
 
             //===========================DownloadFile====================================
             fileName = "M00/00/00/wKhR6U__-BnxYu0eAxRgAJZBq9Q180.mdb";
-            byte[] buffer = FastDFSClient.DownloadFile(node, fileName, 0L,0L);
+            byte[] buffer = FastDFSClient.DownloadFile(node, fileName, 0L, 0L);
             if (File.Exists(@"D:\SZdownload.mdb"))
                 File.Delete(@"D:\SZdownload.mdb");
             FileStream stream = new FileStream(@"D:\SZdownload.mdb", FileMode.CreateNew);
-            using (BinaryWriter write = new BinaryWriter(stream,Encoding.BigEndianUnicode ))
+            using (BinaryWriter write = new BinaryWriter(stream, Encoding.BigEndianUnicode))
             {
                 write.Write(buffer);
                 write.Close();
@@ -88,7 +92,7 @@ namespace FastDFS
             WebClient web = new WebClient();
             web.DownloadFile("http://img13.360buyimg.com/da/g5/M02/0D/16/rBEDik_nOJ0IAAAAAAA_cbJCY-UAACrRgMhVLEAAD-J352.jpg", "C:\\abc.jpg");
             web.DownloadFile("http://192.168.81.233/M00/00/00/wKhR6VADbNr5s7ODAAIOGO1_YmA574.jpg", "C:\\abc.jpg");
-            
+
             Console.WriteLine("Complete");
             Console.Read();
         }
